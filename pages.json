@@ -1,0 +1,66 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/articles/index",
+      "style": {
+        "navigationBarTitleText": "文章"
+      }
+    },
+    {
+      "path": "pages/articles/detail",
+      "style": {
+        "navigationBarTitleText": "文章详情"
+      }
+    },
+    {
+      "path": "pages/audio/index",
+      "style": {
+        "navigationBarTitleText": "音频"
+      }
+    },
+    {
+      "path": "pages/audio/play",
+      "style": {
+        "navigationBarTitleText": "正在播放"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "宝安天主堂",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#2a70ff",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "static/tab/home.png",
+        "selectedIconPath": "static/tab/home_active.png",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/articles/index",
+        "iconPath": "static/tab/article.png",
+        "selectedIconPath": "static/tab/article_active.png",
+        "text": "文章"
+      },
+      {
+        "pagePath": "pages/audio/index",
+        "iconPath": "static/tab/audio.png",
+        "selectedIconPath": "static/tab/audio_active.png",
+        "text": "音频"
+      }
+    ]
+  }
+}
