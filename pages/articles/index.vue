@@ -55,7 +55,6 @@ export default {
       articleList: [
         {
           id: 1,
-          icon: "📿",
           date: "4.23",
           title: "复活八日庆 星期三",
           views: 335,
@@ -64,7 +63,6 @@ export default {
         },
         {
           id: 2,
-          icon: "📖",
           date: "3.01",
           title: "圣灰礼仪",
           views: 822,
@@ -73,7 +71,6 @@ export default {
         },
         {
           id: 3,
-          icon: "🎚️",
           date: "4.19",
           title: "圣周六（复活圣夜）",
           views: 263,
@@ -82,7 +79,6 @@ export default {
         },
         {
           id: 4,
-          icon: "📖",
           date: "4.15",
           title: "耶稣受难日默想",
           views: 695,
@@ -91,7 +87,6 @@ export default {
         },
         {
           id: 5,
-          icon: "📿",
           date: "8.15",
           title: "圣母升天节",
           views: 971,
@@ -100,7 +95,6 @@ export default {
         },
         {
           id: 6,
-          icon: "🙏",
           date: "4.20",
           title: "复活主日讲道摘要",
           views: 412,
@@ -109,7 +103,6 @@ export default {
         },
         {
           id: 7,
-          icon: "✝️",
           date: "6.11",
           title: "圣体圣血节的反省",
           views: 788,
@@ -118,7 +111,6 @@ export default {
         },
         {
           id: 8,
-          icon: "📜",
           date: "2.25",
           title: "每日诵读",
           views: 621,
