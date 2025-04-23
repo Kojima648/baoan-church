@@ -1,14 +1,5 @@
 <template>
   <scroll-view scroll-y class="page">
-    <!-- 顶部导航 -->
-    <u-navbar
-      title="宝安天主堂"
-      :autoBack="false"
-      back-icon=""
-      leftIcon=""
-      safeAreaInsetTop
-      placeholder
-    />
 
     <!-- 圣言横幅 -->
     <view class="banner-box">
