@@ -13,11 +13,14 @@ app.$mount()
 
 // #ifdef VUE3
 import { createSSRApp } from 'vue'
-import uviewPlus from '@/uni_modules/uview-plus' // ✅ 引入 uView Plus
+import uviewPlus from '@/uni_modules/uview-plus'
+import { createPinia } from 'pinia' // ✅ 引入 Pinia
 
 export function createApp() {
   const app = createSSRApp(App)
-  app.use(uviewPlus) // ✅ 注册 uView Plus
+  const pinia = createPinia()       // ✅ 创建 Pinia 实例
+  app.use(pinia)                    // ✅ 注册 Pinia 到应用
+  app.use(uviewPlus)
   return {
     app
   }
