@@ -1,29 +1,29 @@
 <template>
-  <view class="page">
-    <view class="header">🎵 教会歌单</view>
+  <scroll-view class="page" scroll-y>
+    <view class="container">
+      <view class="header">🎵 教会歌单</view>
 
-    <!-- 歌单卡片列表 -->
-    <view class="album-grid">
-      <view
-        v-for="album in albums"
-        :key="album.id"
-        class="album-card"
-        @click="goToAlbum(album)"
-      >
-        <image :src="album.cover" class="album-img" />
-        <view class="album-title">{{ album.title }}</view>
-        <view class="album-desc">播放 {{ album.play_count }} 次</view>
+      <view class="album-grid">
+        <view
+          v-for="album in albums"
+          :key="album.id"
+          class="album-card"
+          @click="goToAlbum(album)"
+        >
+          <image :src="album.cover" class="album-img" mode="aspectFill" />
+          <view class="album-title">{{ album.title }}</view>
+        </view>
       </view>
     </view>
-  </view>
+  </scroll-view>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
-const albums = ref([])
+const albums = ref<any[]>([])
 
-function goToAlbum(album) {
+function goToAlbum(album: any) {
   const encoded = encodeURIComponent(JSON.stringify(album))
   uni.navigateTo({
     url: `/pages/audio/album?album=${encoded}`
@@ -45,43 +45,58 @@ onMounted(() => {
 
 <style scoped>
 .page {
-  padding: 30rpx;
   background-color: #f5f5f5;
   min-height: 100vh;
+  box-sizing: border-box;
 }
+
+.container {
+  padding: 30rpx;
+  box-sizing: border-box;
+}
+
 .header {
-  font-size: 34rpx;
+  font-size: 36rpx;
   font-weight: bold;
-  margin-bottom: 20rpx;
+  margin-bottom: 30rpx;
+  text-align: center;
+  color: #333;
 }
+
 .album-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20rpx;
+  gap: 24rpx;
 }
+
 .album-card {
   background: #ffffff;
-  padding: 20rpx;
-  border-radius: 16rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  border-radius: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 6rpx 12rpx rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: transform 0.2s;
 }
+
+.album-card:active {
+  transform: scale(0.96);
+}
+
 .album-img {
-  width: 160rpx;
-  height: 160rpx;
-  border-radius: 12rpx;
-  margin-bottom: 12rpx;
+  width: 100%;
+  aspect-ratio: 1 / 1; /* 保持图片正方形比例 */
+  object-fit: cover;
 }
+
 .album-title {
   font-size: 28rpx;
   font-weight: 600;
+  color: #222;
   text-align: center;
-}
-.album-desc {
-  font-size: 22rpx;
-  color: #999;
-  margin-top: 6rpx;
+  margin: 20rpx 0;
+  padding: 0 10rpx;
+  word-break: break-word;
 }
 </style>
