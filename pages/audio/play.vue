@@ -1,7 +1,7 @@
 <template>
   <view class="player-page">
     <view class="top-bar">
-      <text class="source-label">来自{{ source }}</text>
+      <text class="source-label">来自{{ albumSource }}</text>
     </view>
 
     <view class="tape-box">
@@ -54,15 +54,19 @@
       <image
         src="/static/icon/music/歌单.svg"
         class="icon-btn small"
+        @click="showPlaylist = true"
       />
     </view>
+
+    <PlaylistPopup :visible="showPlaylist" @close="showPlaylist = false" />
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { useAudioStore } from '@/stores/useAudioStore'
+import PlaylistPopup from './PlaylistPopup.vue'
 
 const audioStore = useAudioStore()
 const currentSong = computed(() => audioStore.currentSong)
@@ -71,7 +75,8 @@ const currentTime = ref(0)
 const duration = ref(0)
 const seeking = ref(false)
 const playMode = ref<'order' | 'repeat' | 'shuffle'>('order')
-const source = ref('宝安天主堂') // 专辑来源默认值
+const albumSource = ref('宝安天主堂')
+const showPlaylist = ref(false)
 
 let bgAudio: WechatMiniprogram.BackgroundAudioManager | null = null
 
@@ -81,6 +86,7 @@ const playModeIcon = computed(() => {
   return '循环播放.svg'
 })
 
+// 加载当前歌曲
 function loadCurrentSong() {
   if (!currentSong.value || !bgAudio) return
   bgAudio.title = currentSong.value.name || '未知歌曲'
@@ -92,33 +98,39 @@ function loadCurrentSong() {
   uni.setNavigationBarTitle({ title: currentSong.value.name || '正在播放' })
 }
 
+// 播放下一首
 function playNext() {
   if (playMode.value === 'shuffle') audioStore.playRandom()
   else audioStore.playNext()
   loadCurrentSong()
 }
 
+// 播放上一首
 function playPrev() {
   audioStore.playPrev()
   loadCurrentSong()
 }
 
+// 切换播放/暂停
 function togglePlay() {
   if (!bgAudio) return
   isPlaying.value ? bgAudio.pause() : bgAudio.play()
 }
 
+// 拖动进度条
 function onSliderChanging(e) {
   seeking.value = true
   currentTime.value = e.detail.value
 }
 
+// 拖动完成
 function onSliderChanged(e) {
   if (!bgAudio) return
   bgAudio.seek(e.detail.value)
   seeking.value = false
 }
 
+// 时间格式化
 function formatTime(sec: number) {
   sec = Math.floor(sec)
   const min = String(Math.floor(sec / 60)).padStart(2, '0')
@@ -126,6 +138,7 @@ function formatTime(sec: number) {
   return `${min}:${secStr}`
 }
 
+// 切换播放模式
 function togglePlayMode() {
   playMode.value = playMode.value === 'order' ? 'repeat' : playMode.value === 'repeat' ? 'shuffle' : 'order'
   uni.showToast({ title: playModeText(), icon: 'none' })
@@ -138,10 +151,6 @@ function playModeText() {
 }
 
 onLoad((options) => {
-  if (options.source) {
-    source.value = decodeURIComponent(options.source)
-  }
-
   if (options.playlist && options.index !== undefined) {
     try {
       const list = JSON.parse(decodeURIComponent(options.playlist))
@@ -152,6 +161,9 @@ onLoad((options) => {
       console.error('解析播放参数失败', e)
     }
   }
+  if (options.source) {
+    albumSource.value = decodeURIComponent(options.source)
+  }
 
   if (process.env.UNI_PLATFORM === 'mp-weixin') {
     bgAudio = uni.getBackgroundAudioManager()
@@ -161,9 +173,10 @@ onLoad((options) => {
     bgAudio.onStop(() => { isPlaying.value = false })
     bgAudio.onEnded(() => {
       if (playMode.value === 'repeat') {
-        loadCurrentSong() // 单曲循环时重新加载当前歌曲
+        bgAudio?.seek(0)
+        bgAudio?.play()
       } else {
-        playNext() // 顺序或随机播放
+        playNext()
       }
     })
     bgAudio.onTimeUpdate(() => {
@@ -174,9 +187,17 @@ onLoad((options) => {
     })
   }
 })
+
+// 新增！监听 currentSong 切换歌曲
+watch(currentSong, (newSong, oldSong) => {
+  if (newSong && (!oldSong || newSong.id !== oldSong.id)) {
+    loadCurrentSong()
+  }
+})
 </script>
 
 <style scoped>
+/* 你的样式保持不变 */
 .player-page {
   background-color: #f9f9f9;
   padding: 40rpx 30rpx;
@@ -206,15 +227,19 @@ onLoad((options) => {
 .info {
   text-align: center;
   margin-bottom: 30rpx;
+  line-height: 1.6;
 }
 .title {
+  display: block; 
   font-size: 36rpx;
   font-weight: bold;
-  margin-bottom: 8rpx;
+  margin-bottom: 10rpx;
+  color: #000;
 }
 .artist {
+  display: block; 
   font-size: 26rpx;
-  color: #888;
+  color: #999;
 }
 .progress {
   width: 92%;
