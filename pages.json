@@ -25,11 +25,17 @@
       }
     },
     {
-      "path": "pages/audio/play",
+      "path": "pages/audio/album",
       "style": {
-        "navigationBarTitleText": "正在播放"
+        "navigationBarTitleText": "歌单列表"
       }
-    }
+    },
+	{
+	  "path": "pages/audio/play",
+	  "style": {
+		"navigationBarTitleText": "正在播放"
+	  }
+	}
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",

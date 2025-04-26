@@ -49,13 +49,17 @@
     /* 快应用特有相关 */
     "quickapp" : {},
     /* 小程序特有相关 */
-    "mp-weixin" : {
-        "appid" : "wxe9411ab7da43c4f9",
-        "setting" : {
-            "urlCheck" : false
+    "mp-weixin": {
+        "appid": "wxe9411ab7da43c4f9",
+        "setting": {
+          "urlCheck": false
         },
-        "usingComponents" : true
+        "usingComponents": true,
+        "requiredBackgroundModes": [
+          "audio"
+        ]
     },
+
     "mp-alipay" : {
         "usingComponents" : true
     },

@@ -1,88 +1,46 @@
 <template>
   <view class="page">
-    <text style="margin-bottom:20rpx; color: green">✅ 页面已加载</text>
+    <view class="header">🎵 教会歌单</view>
 
-    <!-- 歌单列表 -->
-    <view v-for="album in albums" :key="album.id" class="card" @click="openAlbum(album)">
-      <image :src="album.cover" class="card-img" />
-      <view class="card-info">
-        <text class="title">{{ album.name }}</text>
-        <text class="artist">共 {{ album.songs.length }} 首</text>
+    <!-- 歌单卡片列表 -->
+    <view class="album-grid">
+      <view
+        v-for="album in albums"
+        :key="album.id"
+        class="album-card"
+        @click="goToAlbum(album)"
+      >
+        <image :src="album.cover" class="album-img" />
+        <view class="album-title">{{ album.title }}</view>
+        <view class="album-desc">播放 {{ album.play_count }} 次</view>
       </view>
     </view>
-
-    <!-- 当前专辑的歌曲列表 -->
-    <view v-if="selectedAlbum" style="margin-top: 30rpx;">
-      <view class="section-title">🎵 {{ selectedAlbum.name }} 歌曲列表</view>
-      <view v-for="song in selectedAlbum.songs" :key="song.id" class="card song-card" @click="play(song)">
-        <image :src="song.cover" class="card-img" />
-        <view class="card-info">
-          <text class="title">{{ song.title }}</text>
-          <text class="artist">{{ song.artist }}</text>
-        </view>
-      </view>
-    </view>
-
-    <floating-player />
   </view>
 </template>
 
 <script setup lang="ts">
-import FloatingPlayer from '@/components/FloatingPlayer.vue'
-import { useAudioStore } from '@/stores/useAudioStore'
-import { AudioManager } from '@/utils/audio'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
-const audio = useAudioStore()
+const albums = ref([])
 
-const albums = [
-  {
-    id: 1,
-    name: '圣咏精选集',
-    cover: 'https://picsum.photos/80/80?album1',
-    songs: [
-      {
-        id: 1,
-        title: '圣母颂',
-        artist: '宝安堂唱诗班',
-        url: 'https://example.com/audio/song1.mp3',
-        cover: 'https://picsum.photos/80/80?1'
-      },
-      {
-        id: 2,
-        title: '平安夜',
-        artist: '教堂童声合唱团',
-        url: 'https://example.com/audio/song2.mp3',
-        cover: 'https://picsum.photos/80/80?2'
-      }
-    ]
-  },
-  {
-    id: 2,
-    name: '玫瑰经诵念',
-    cover: 'https://picsum.photos/80/80?album2',
-    songs: [
-      {
-        id: 3,
-        title: '玫瑰经起始祷文',
-        artist: '教友会',
-        url: 'https://example.com/audio/song3.mp3',
-        cover: 'https://picsum.photos/80/80?3'
-      }
-    ]
-  }
-]
-
-const selectedAlbum = ref(null)
-
-function openAlbum(album) {
-  selectedAlbum.value = album
+function goToAlbum(album) {
+  const encoded = encodeURIComponent(JSON.stringify(album))
+  uni.navigateTo({
+    url: `/pages/audio/album?album=${encoded}`
+  })
 }
 
-function play(song) {
-  audio.play(song)
-  AudioManager.play(song.url)
-}
+onMounted(() => {
+  uni.request({
+    url: 'https://mini-program-1252089784.cos.ap-guangzhou.myqcloud.com/config/music/type-0/sheet_list.json',
+    success: (res) => {
+      albums.value = res.data || []
+    },
+    fail: (err) => {
+      console.error('歌单加载失败', err)
+    }
+  })
+})
 </script>
 
 <style scoped>
@@ -91,40 +49,39 @@ function play(song) {
   background-color: #f5f5f5;
   min-height: 100vh;
 }
-.card {
-  display: flex;
+.header {
+  font-size: 34rpx;
+  font-weight: bold;
   margin-bottom: 20rpx;
+}
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+.album-card {
   background: #ffffff;
   padding: 20rpx;
   border-radius: 16rpx;
-  align-items: center;
-  box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.05);
-}
-.card-img {
-  width: 100rpx;
-  height: 100rpx;
-  border-radius: 12rpx;
-  margin-right: 20rpx;
-  background: #ccc;
-}
-.card-info {
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
-.card-info .title {
-  font-size: 30rpx;
-  font-weight: bold;
+.album-img {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  margin-bottom: 12rpx;
 }
-.card-info .artist {
-  font-size: 24rpx;
-  color: #888;
-}
-.section-title {
+.album-title {
   font-size: 28rpx;
-  font-weight: bold;
-  margin: 20rpx 0;
+  font-weight: 600;
+  text-align: center;
 }
-.song-card {
-  background: #f9f9f9;
+.album-desc {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 6rpx;
 }
 </style>
