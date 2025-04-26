@@ -51,20 +51,20 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "iconPath": "static/tab/home.png",
-        "selectedIconPath": "static/tab/home_active.png",
+        "iconPath": "static/tab/教堂.png",
+        "selectedIconPath": "static/tab/教堂1.png",
         "text": "首页"
       },
       {
         "pagePath": "pages/articles/index",
-        "iconPath": "static/tab/article.png",
-        "selectedIconPath": "static/tab/article_active.png",
+        "iconPath": "static/tab/文章.png",
+        "selectedIconPath": "static/tab/文章1.png",
         "text": "文章"
       },
       {
         "pagePath": "pages/audio/index",
-        "iconPath": "static/tab/audio.png",
-        "selectedIconPath": "static/tab/audio_active.png",
+        "iconPath": "static/tab/音频.png",
+        "selectedIconPath": "static/tab/音频1.png",
         "text": "音频"
       }
     ]
