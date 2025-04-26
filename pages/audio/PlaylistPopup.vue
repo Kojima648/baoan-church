@@ -1,6 +1,9 @@
 <template>
-  <view class="playlist-mask" v-if="visible" @touchmove.stop.prevent>
-    <view class="playlist-popup">
+  <view class="playlist-mask" v-if="visible" @click="close" @touchmove.stop.prevent>
+    <view 
+      class="playlist-popup" 
+      @click.stop
+    >
       <view class="playlist-header">
         <text class="title">当前播放列表</text>
         <u-icon name="close" @click="close" size="40" color="#999" />
@@ -19,7 +22,15 @@
           @click="select(index)"
         >
           <view class="playlist-item-inner">
-            <text class="index">{{ String(index + 1).padStart(2, '0') }}</text>
+            <view class="left-icon">
+              <image
+                v-if="index === currentIndex"
+                src="/static/icon/music/播放2.svg"
+                class="play-svg-icon"
+                mode="aspectFit"
+              />
+              <text v-else class="index">{{ String(index + 1).padStart(2, '0') }}</text>
+            </view>
             <view class="playlist-item-content">
               <text class="song-name">{{ song.name }}</text>
               <text class="singer-name">{{ song.singerName }}</text>
@@ -57,27 +68,18 @@ function select(index: number) {
   emit('close')
 }
 
-// 🔥 带日志版，正确的滚动逻辑
 watch(() => props.visible, async (newVal) => {
-  console.log('[Popup] visible changed:', newVal)
-
   if (newVal) {
     await nextTick()
-    scrollIntoViewId.value = ''   // 🔥 清空一次
-    console.log('[Popup] First nextTick done, cleared scrollIntoViewId')
+    scrollIntoViewId.value = ''
 
     await nextTick()
-    console.log('[Popup] Second nextTick done, ready to assign')
 
     const current = playlist.value[currentIndex.value]
     if (current) {
       scrollIntoViewId.value = `song-${current.id}`
-      console.log('[Popup] Assigned scrollIntoViewId:', scrollIntoViewId.value)
-    } else {
-      console.warn('[Popup] No current song to scroll to.')
     }
   } else {
-    console.log('[Popup] Popup closed, clear scrollIntoViewId')
     scrollIntoViewId.value = ''
   }
 })
@@ -123,7 +125,7 @@ watch(() => props.visible, async (newVal) => {
 }
 
 .playlist-scroll {
-  height: 70vh; /* ✨ 核心修复，高度固定 */
+  height: 70vh;
   padding: 24rpx 36rpx;
   overflow-y: auto;
   padding-bottom: 80rpx;
@@ -132,6 +134,12 @@ watch(() => props.visible, async (newVal) => {
 .playlist-item {
   padding: 24rpx 0;
   border-bottom: 1px solid #f5f5f5;
+  background-color: #ffffff;
+  transition: background-color 0.3s;
+}
+
+.playlist-item.active {
+  background-color: #f0f6ff;
 }
 
 .playlist-item:last-child {
@@ -144,13 +152,24 @@ watch(() => props.visible, async (newVal) => {
   overflow: hidden;
 }
 
-.index {
-  font-size: 26rpx;
-  color: #999;
+.left-icon {
   width: 80rpx;
   flex-shrink: 0;
   text-align: right;
   margin-right: 20rpx;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.index {
+  font-size: 26rpx;
+  color: #999;
+}
+
+.play-svg-icon {
+  width: 36rpx;
+  height: 36rpx;
 }
 
 .playlist-item-content {
