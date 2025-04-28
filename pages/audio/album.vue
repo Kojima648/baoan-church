@@ -47,6 +47,7 @@
 import { ref, nextTick } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import FloatingPlayer from '@/components/FloatingPlayer.vue'
+import { Config } from '@/utils/config' // ✅ 新增：引入配置模块
 
 const album = ref<any>(null)
 const descExpanded = ref(false)
@@ -80,8 +81,10 @@ onLoad((options) => {
     try {
       const simpleAlbum = JSON.parse(decodeURIComponent(options.album))
       uni.setNavigationBarTitle({ title: simpleAlbum.title })
+      const sheetId = simpleAlbum.id
+
       uni.request({
-        url: `https://mini-program-1252089784.cos.ap-guangzhou.myqcloud.com/config/music/type-0/sheet_detail/sheet_${simpleAlbum.id}.json`,
+        url: Config.music.getSheetDetailUrl(sheetId),  // ✅ 改成用配置模块取 URL
         success: (res) => {
           album.value = res.data || {}
           if (album.value.description && album.value.description.length > 90) {
@@ -98,6 +101,7 @@ onLoad((options) => {
   }
 })
 </script>
+
 
 <style scoped>
 .page {

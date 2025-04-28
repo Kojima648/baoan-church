@@ -19,9 +19,10 @@
       <u-cell-group class="highlighted-cell-group">
         <u-cell
           title="瞻礼单"
-          label="复活节庆期第三日"
-          value="04月22日"
+          :label="todayFestival.title"
+          :value="todayFestival.dateStr"
           isLink
+          @click="goFestivalList"
         />
       </u-cell-group>
     </view>
@@ -57,12 +58,21 @@
       </view>
     </view>
 
-    <!-- ✅ 添加底部占位区域，避免内容紧贴 tab -->
     <view style="height: 5rpx;"></view>
   </scroll-view>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { Config } from '@/utils/config.js'
+
+// 今日节日信息
+const todayFestival = ref({
+  title: '今日暂无瞻礼',
+  dateStr: ''
+})
+
+// 每日灵修数据
 const devotionItems = [
   { title: '公教日课', sub: '复活节庆期第三日', icon: '🕯️' },
   { title: '思高圣经', sub: '创 1', icon: '📖' },
@@ -70,6 +80,7 @@ const devotionItems = [
   { title: 'Readings', sub: '英文读经', icon: '🍷' }
 ]
 
+// 常用书籍数据
 const books = [
   { title: '《天韵》', img: 'https://picsum.photos/id/1005/200/280' },
   { title: '公私诵', img: 'https://picsum.photos/id/1011/200/280' },
@@ -78,13 +89,98 @@ const books = [
   { title: '圣月默想', img: 'https://picsum.photos/id/1031/200/280' },
   { title: '礼仪手册', img: 'https://picsum.photos/id/1043/200/280' }
 ]
+
+// 页面加载时
+onMounted(() => {
+  loadTodayFestival()
+})
+
+// 跳转到瞻礼单列表页
+function goFestivalList() {
+  uni.navigateTo({
+    url: '/pages/festival/festival-list'
+  })
+}
+
+// 加载今日瞻礼单
+function loadTodayFestival() {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+
+  const yearMonth = `${year}-${month}`
+  const todayDay = day
+
+  const url = Config.festival.getFestivalListUrl(yearMonth)
+
+  console.log('[Festival] 今天日期:', `${year}-${month}-${day}`)
+  console.log('[Festival] 请求URL:', url)
+
+  uni.request({
+    url,
+    success: (res) => {
+      const list = res.data?.data || []
+      console.log('[Festival] 返回节日数据：', list)
+
+      const todayIndex = Number(todayDay) - 1
+      const festival = list[todayIndex]
+
+      if (festival) {
+        console.log('[Festival] 找到今日节日:', festival)
+
+        const rawFestival = festival.节日 || ''
+        const cleanFestival = extractFestivalTitle(rawFestival)
+
+        todayFestival.value.title = cleanFestival || '今日暂无瞻礼'
+        todayFestival.value.dateStr = `${month}月${day}日`
+      } else {
+        console.warn('[Festival] 没有找到今日节日')
+        todayFestival.value.title = '今日暂无瞻礼'
+        todayFestival.value.dateStr = `${month}月${day}日`
+      }
+    },
+    fail: (err) => {
+      console.error('[Festival] 请求失败', err)
+      todayFestival.value.title = '今日瞻礼加载失败'
+      todayFestival.value.dateStr = `${month}月${day}日`
+    }
+  })
+}
+
+// 提取节日第一个 <li> 的纯文字
+function extractFestivalTitle(html) {
+  if (!html) return ''
+
+  try {
+    html = html.replace(/\n/g, '') // 清理换行符
+    const liMatches = html.match(/<li[^>]*>(.*?)<\/li>/g)
+
+    if (liMatches && liMatches.length > 0) {
+      let firstLi = liMatches[0]
+
+      // 先找 <a> 标签内部内容
+      const aMatch = firstLi.match(/<a[^>]*>(.*?)<\/a>/)
+      if (aMatch && aMatch[1]) {
+        return aMatch[1].trim()
+      } else {
+        // 没有<a>，直接去除HTML标签
+        return firstLi.replace(/<[^>]+>/g, '').trim()
+      }
+    }
+    return ''
+  } catch (e) {
+    console.error('[Festival] 提取节日错误:', e)
+    return ''
+  }
+}
+
 </script>
 
 <style scoped>
 .page {
-  height: 100vh;
   background-color: #f7f7f7;
-  position: relative;
+  min-height: 100vh;
 }
 
 .banner-box {
@@ -127,21 +223,12 @@ const books = [
 .section-box {
   margin: 0 24rpx 24rpx;
 }
-.book-section {
-  /* 去掉不必要的 margin-bottom，避免多余留白 */
-}
-
 .highlighted-cell-group {
   background-color: #ffffff;
   border-radius: 20rpx;
   box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.04);
   overflow: hidden;
-  transition: transform 0.2s;
 }
-.highlighted-cell-group:active {
-  transform: scale(0.98);
-}
-
 .devotion-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -157,10 +244,6 @@ const books = [
   display: flex;
   flex-direction: column;
   gap: 12rpx;
-  transition: transform 0.2s;
-}
-.devotion-item:active {
-  transform: scale(0.97);
 }
 .icon {
   position: absolute;
@@ -190,10 +273,6 @@ const books = [
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: transform 0.2s;
-}
-.book-card:active {
-  transform: scale(0.97);
 }
 .book-image {
   width: 150rpx;

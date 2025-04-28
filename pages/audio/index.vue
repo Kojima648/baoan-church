@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { Config } from '@/utils/config' // ✅ 新增引入Config模块
 
 const albums = ref<any[]>([])
 
@@ -32,7 +33,7 @@ function goToAlbum(album: any) {
 
 onMounted(() => {
   uni.request({
-    url: 'https://mini-program-1252089784.cos.ap-guangzhou.myqcloud.com/config/music/type-0/sheet_list.json',
+    url: Config.music.sheetListUrl, // ✅ 使用配置里的 sheetListUrl
     success: (res) => {
       albums.value = res.data || []
     },
@@ -42,6 +43,7 @@ onMounted(() => {
   })
 })
 </script>
+
 
 <style scoped>
 .page {

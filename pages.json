@@ -30,12 +30,18 @@
         "navigationBarTitleText": "歌单列表"
       }
     },
-	{
-	  "path": "pages/audio/play",
-	  "style": {
-		"navigationBarTitleText": "正在播放"
-	  }
-	}
+    {
+      "path": "pages/audio/play",
+      "style": {
+        "navigationBarTitleText": "正在播放"
+      }
+    },
+    {
+      "path": "pages/festival/festival-list",
+      "style": {
+        "navigationBarTitleText": "瞻礼单"
+      }
+    }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
