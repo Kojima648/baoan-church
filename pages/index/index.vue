@@ -1,6 +1,5 @@
 <template>
   <scroll-view scroll-y class="page">
-
     <!-- 圣言横幅 -->
     <view class="banner-box">
       <image
@@ -15,16 +14,25 @@
     </view>
 
     <!-- 瞻礼单 -->
-    <view class="section-box">
-      <u-cell-group class="highlighted-cell-group">
-        <u-cell
-          title="瞻礼单"
-          :label="todayFestival.title"
-          :value="todayFestival.dateStr"
-          isLink
-          @click="goFestivalList"
-        />
-      </u-cell-group>
+    <view class="section-box festival-section">
+      <!-- 左侧礼仪色条 -->
+      <view
+        class="liturgical-color-bar"
+        :style="getLiturgicalColorStyle(todayFestival.liturgicalColor)"
+      ></view>
+
+      <!-- 中间标题和节日 -->
+      <view class="festival-item-row">
+        <view class="festival-item-left">
+          <view class="festival-title">瞻礼单</view>
+          <view class="festival-label">{{ currentFestivalTitle }}</view>
+        </view>
+        <view class="festival-item-right">
+          <text>{{ todayFestival.dateStr }}</text>
+          <text class="arrow-icon"> ＞</text> <!-- 这里加箭头 -->
+        </view>
+
+      </view>
     </view>
 
     <!-- 每日灵修 -->
@@ -63,14 +71,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { Config } from '@/utils/config.js'
 
 // 今日节日信息
 const todayFestival = ref({
-  title: '今日暂无瞻礼',
-  dateStr: ''
+  titleList: [],
+  dateStr: '',
+  liturgicalColor: ''
 })
+
+// 当前显示的节日标题
+const currentFestivalTitle = ref('今日暂无瞻礼')
+
+let scrollTimer: any = null
+let scrollIndex = 0
 
 // 每日灵修数据
 const devotionItems = [
@@ -90,9 +105,16 @@ const books = [
   { title: '礼仪手册', img: 'https://picsum.photos/id/1043/200/280' }
 ]
 
-// 页面加载时
+// 页面加载
 onMounted(() => {
   loadTodayFestival()
+})
+
+// 页面卸载
+onUnmounted(() => {
+  if (scrollTimer) {
+    clearInterval(scrollTimer)
+  }
 })
 
 // 跳转到瞻礼单列表页
@@ -114,67 +136,93 @@ function loadTodayFestival() {
 
   const url = Config.festival.getFestivalListUrl(yearMonth)
 
-  console.log('[Festival] 今天日期:', `${year}-${month}-${day}`)
-  console.log('[Festival] 请求URL:', url)
-
   uni.request({
     url,
     success: (res) => {
       const list = res.data?.data || []
-      console.log('[Festival] 返回节日数据：', list)
-
       const todayIndex = Number(todayDay) - 1
       const festival = list[todayIndex]
 
       if (festival) {
-        console.log('[Festival] 找到今日节日:', festival)
-
         const rawFestival = festival.节日 || ''
-        const cleanFestival = extractFestivalTitle(rawFestival)
+        const titles = extractFestivalTitles(rawFestival)
 
-        todayFestival.value.title = cleanFestival || '今日暂无瞻礼'
+        todayFestival.value.titleList = titles.length > 0 ? titles : ['今日暂无瞻礼']
         todayFestival.value.dateStr = `${month}月${day}日`
+        todayFestival.value.liturgicalColor = festival.礼仪 || '白'
+        startScrollFestivalTitles()
       } else {
-        console.warn('[Festival] 没有找到今日节日')
-        todayFestival.value.title = '今日暂无瞻礼'
+        todayFestival.value.titleList = ['今日暂无瞻礼']
         todayFestival.value.dateStr = `${month}月${day}日`
+        todayFestival.value.liturgicalColor = '白'
       }
     },
     fail: (err) => {
-      console.error('[Festival] 请求失败', err)
-      todayFestival.value.title = '今日瞻礼加载失败'
+      todayFestival.value.titleList = ['今日瞻礼加载失败']
       todayFestival.value.dateStr = `${month}月${day}日`
+      todayFestival.value.liturgicalColor = '白'
     }
   })
 }
 
-// 提取节日第一个 <li> 的纯文字
-function extractFestivalTitle(html) {
-  if (!html) return ''
+// 提取所有节日条目
+function extractFestivalTitles(html: string) {
+  if (!html) return []
 
   try {
-    html = html.replace(/\n/g, '') // 清理换行符
+    html = html.replace(/\n/g, '')
     const liMatches = html.match(/<li[^>]*>(.*?)<\/li>/g)
 
-    if (liMatches && liMatches.length > 0) {
-      let firstLi = liMatches[0]
+    if (!liMatches) return []
 
-      // 先找 <a> 标签内部内容
-      const aMatch = firstLi.match(/<a[^>]*>(.*?)<\/a>/)
+    return liMatches.map((li) => {
+      const aMatch = li.match(/<a[^>]*>(.*?)<\/a>/)
       if (aMatch && aMatch[1]) {
         return aMatch[1].trim()
       } else {
-        // 没有<a>，直接去除HTML标签
-        return firstLi.replace(/<[^>]+>/g, '').trim()
+        return li.replace(/<[^>]+>/g, '').trim()
       }
-    }
-    return ''
+    })
   } catch (e) {
-    console.error('[Festival] 提取节日错误:', e)
-    return ''
+    return []
   }
 }
 
+// 开始滚动节日标题
+function startScrollFestivalTitles() {
+  if (scrollTimer) {
+    clearInterval(scrollTimer)
+  }
+
+  scrollIndex = 0
+  currentFestivalTitle.value = todayFestival.value.titleList[0] || '今日暂无瞻礼'
+
+  scrollTimer = setInterval(() => {
+    const titles = todayFestival.value.titleList
+    if (titles.length === 0) return
+
+    scrollIndex = (scrollIndex + 1) % titles.length
+    currentFestivalTitle.value = titles[scrollIndex]
+  }, 3000)
+}
+
+// 获取礼仪色条样式
+function getLiturgicalColorStyle(color: string) {
+  switch (color) {
+    case '白':
+      return { background: '#ffffff', border: '1rpx solid #ccc' }
+    case '红':
+      return { background: '#ff4d4f' }
+    case '绿':
+      return { background: '#52c41a' }
+    case '紫':
+      return { background: '#722ed1' }
+    case '玫':
+      return { background: '#ff69b4' }
+    default:
+      return { background: '#cccccc' }
+  }
+}
 </script>
 
 <style scoped>
@@ -214,6 +262,61 @@ function extractFestivalTitle(html) {
   opacity: 0.9;
 }
 
+/* 瞻礼单区域布局 */
+.festival-section {
+  display: flex;
+  align-items: stretch;
+  margin: 0 24rpx 24rpx;
+}
+
+/* 左侧礼仪色条 */
+.liturgical-color-bar {
+  width: 8rpx;
+  border-radius: 6rpx;
+  margin-right: 8rpx;
+  background: #ccc;
+}
+
+/* 中间内容 */
+.festival-item-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 20rpx;
+  box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.04);
+  padding: 24rpx;
+}
+
+.festival-item-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.festival-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.festival-label {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #666;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 日期固定右边 */
+.festival-item-right {
+  flex-shrink: 0;
+  font-size: 26rpx;
+  color: #333;
+  margin-left: 12rpx;
+}
+
+/* 每日灵修 */
 .section-title {
   font-size: 28rpx;
   font-weight: bold;
@@ -223,12 +326,7 @@ function extractFestivalTitle(html) {
 .section-box {
   margin: 0 24rpx 24rpx;
 }
-.highlighted-cell-group {
-  background-color: #ffffff;
-  border-radius: 20rpx;
-  box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.04);
-  overflow: hidden;
-}
+
 .devotion-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -261,6 +359,7 @@ function extractFestivalTitle(html) {
   color: #999;
 }
 
+/* 常用书籍 */
 .book-background {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
