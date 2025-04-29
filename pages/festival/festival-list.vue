@@ -1,13 +1,14 @@
 <template>
   <view class="container">
+    <FestivalHeader />
+
     <scroll-view
       class="festival-scroll"
       scroll-y
-	  :style="{ height: `94vh` }"
+	  :style="{ height: 'calc(100vh - 80rpx - 4vh)' }"  
       :scroll-top="scrollTop"
       scroll-with-animation
       ref="scrollView"
-	  
     >
       <view
         v-for="(item, index) in festivalData"
@@ -16,8 +17,6 @@
         class="festival-item"
         :class="{ 'festival-today': isToday(item) }"
       >
-	  
-        <!-- 今日角标 -->
         <view v-if="isToday(item)" class="today-tag">今日</view>
 
         <view class="left-section">
@@ -57,12 +56,12 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
 import { Config } from '@/utils/config'
+import FestivalHeader from '@/components/festival/FestivalHeader.vue'
 
 const festivalData = ref([])
 const scrollTop = ref(0)
 
 const today = new Date()
-
 const todayDay = String(today.getDate()).padStart(2, '0')
 const todayWeek = ['日', '一', '二', '三', '四', '五', '六'][today.getDay()]
 
@@ -72,7 +71,7 @@ function isToday(item: any): boolean {
 
 function getLiturgicalColorStyle(color: string) {
   const colorMap: Record<string, string> = {
-    '白': '#ddd',
+    '白': '#eeeeee',
     '红': '#ff4d4f',
     '绿': '#52c41a',
     '紫': '#722ed1',
@@ -121,8 +120,8 @@ onMounted(() => {
       if (index !== -1) {
         nextTick(() => {
           const query = uni.createSelectorQuery()
-          query.select('.festival-scroll').boundingClientRect() // scroll-view
-          query.select(`#festival-${index}`).boundingClientRect() // 今日节点
+          query.select('.festival-scroll').boundingClientRect()
+          query.select(`#festival-${index}`).boundingClientRect()
           query.exec(([scrollViewRect, itemRect]) => {
             if (scrollViewRect && itemRect) {
               const relativeTop = itemRect.top - scrollViewRect.top
@@ -140,7 +139,6 @@ onMounted(() => {
     }
   })
 })
-
 </script>
 
 <style scoped>
@@ -148,11 +146,12 @@ onMounted(() => {
   width: 100%;
   height: 100vh;
   background: #fff;
+  display: flex;
+  flex-direction: column;
 }
 
 .festival-scroll {
   width: 100%;
-  height: 100%;
 }
 
 .festival-item {
