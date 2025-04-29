@@ -124,8 +124,11 @@ function getLiturgicalColorStyle(color: string) {
 // 点击跳转
 function goFestivalList() {
   console.log('[点击] 瞻礼单区块')
-  uni.navigateTo({ url: '/pages/festival/festival-list' })
+  uni.navigateTo({
+    url: '/pages/festival/festival-list?goto=today'
+  })
 }
+
 </script>
 
 <style scoped>
