@@ -185,6 +185,14 @@ onLoad((options) => {
         duration.value = bgAudio.duration
       }
     })
+
+    // 新增锁屏状态下的上一首/下一首切换逻辑
+    bgAudio.onPrev(() => {
+      playPrev()
+    })
+    bgAudio.onNext(() => {
+      playNext()
+    })
   }
 })
 
