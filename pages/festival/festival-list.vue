@@ -1,11 +1,12 @@
 <template>
   <view class="container">
-    <FestivalHeader />
+    <!-- 头部组件传入 meta 数据，监听选择变化 -->
+    <FestivalHeader :meta="metaData" @date-change="onMonthChange" />
 
     <scroll-view
       class="festival-scroll"
       scroll-y
-	  :style="{ height: 'calc(100vh - 80rpx - 4vh)' }"  
+      :style="{ height: 'calc(100vh - 80rpx - 4vh)' }"
       :scroll-top="scrollTop"
       scroll-with-animation
       ref="scrollView"
@@ -60,6 +61,7 @@ import FestivalHeader from '@/components/festival/FestivalHeader.vue'
 
 const festivalData = ref([])
 const scrollTop = ref(0)
+const metaData = ref({})
 
 const today = new Date()
 const todayDay = String(today.getDate()).padStart(2, '0')
@@ -102,11 +104,8 @@ function onFestivalItemClick(line: { text: string; link?: string }) {
   }
 }
 
-onMounted(() => {
-  const year = today.getFullYear()
-  const month = String(today.getMonth() + 1).padStart(2, '0')
-  const filePath = Config.festival.getFestivalListUrl(`${year}-${month}`)
-
+function loadFestivalList(yearMonth: string) {
+  const filePath = Config.festival.getFestivalListUrl(yearMonth)
   console.log('[请求节日数据]', filePath)
 
   uni.request({
@@ -114,6 +113,7 @@ onMounted(() => {
     success: (res) => {
       const list = res.data?.data || []
       festivalData.value = list
+      metaData.value = res.data?.meta || {}
       console.log('[节日数据加载成功]', list.length, '条')
 
       const index = list.findIndex((item: any) => isToday(item))
@@ -138,6 +138,17 @@ onMounted(() => {
       console.error('[加载失败]', filePath)
     }
   })
+}
+
+function onMonthChange(yearMonth: string) {
+  loadFestivalList(yearMonth)
+}
+
+onMounted(() => {
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const yearMonth = `${year}-${month}`
+  loadFestivalList(yearMonth)
 })
 </script>
 

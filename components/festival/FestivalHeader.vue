@@ -12,7 +12,6 @@
       >
         <view class="meta-date">
           {{ displayDate }}
-          <!-- ✅ 用 SVG 图标替换文字图标 -->
           <image src="/static/icon/festival/date.svg" class="calendar-icon" mode="aspectFit" />
         </view>
       </picker>
@@ -22,8 +21,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { Config } from '@/utils/config'
+import { ref, watch, defineProps, defineEmits } from 'vue'
+
+const props = defineProps<{ meta: any }>()
+const emit = defineEmits<{
+  (e: 'date-change', yearMonth: string): void
+}>()
 
 const displayDate = ref('')
 const specialMonth = ref('')
@@ -31,50 +34,25 @@ const currentPickerValue = ref('')
 const startDate = '2025-01'
 const endDate = '2050-12'
 
-function loadFestivalMeta(yearMonth: string) {
-  const url = Config.festival.getFestivalListUrl(yearMonth)
-
-  console.log('[请求FestivalList]', url)
-
-  uni.request({
-    url,
-    success: (res) => {
-      const meta = res.data?.meta
-      if (meta) {
-        specialMonth.value = meta.special_festival_note || ''
-        console.log('[解析meta成功]', specialMonth.value)
-      } else {
-        specialMonth.value = ''
-        console.warn('[无meta信息]', url)
-      }
-    },
-    fail: () => {
-      console.error('[请求失败]', url)
-      specialMonth.value = ''
-    }
-  })
-}
-
 function onDateChange(e: any) {
-  const value = e.detail.value // '2025-05'
+  const value = e.detail.value // '2025-09'
   currentPickerValue.value = value
-
   const [year, month] = value.split('-')
   displayDate.value = `${year}年${month}月`
-
-  loadFestivalMeta(value)
+  emit('date-change', value)
 }
 
-onMounted(() => {
-  const today = new Date()
-  const year = today.getFullYear()
-  const month = String(today.getMonth() + 1).padStart(2, '0')
-
-  currentPickerValue.value = `${year}-${month}`
-  displayDate.value = `${year}年${month}月`
-
-  loadFestivalMeta(currentPickerValue.value)
-})
+watch(
+  () => props.meta,
+  (meta) => {
+    const year = meta?.year || 2025
+    const month = String(meta?.month || 1).padStart(2, '0')
+    currentPickerValue.value = `${year}-${month}`
+    displayDate.value = `${year}年${month}月`
+    specialMonth.value = meta?.special_festival_note || ''
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
