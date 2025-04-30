@@ -1,25 +1,30 @@
 <template>
-  <view class="playlist-mask" v-if="visible" @click="close" @touchmove.stop.prevent>
-    <view 
-      class="playlist-popup" 
-      @click.stop
-    >
+  <u-popup
+    :show="visible"
+    mode="bottom"
+    :round="20"
+    @close="close"
+    :safeAreaInsetBottom="true"
+    :closeable="false"
+  >
+    <view class="playlist-container">
       <view class="playlist-header">
         <text class="title">当前播放列表</text>
         <u-icon name="close" @click="close" size="40" color="#999" />
       </view>
-      <scroll-view 
-        class="playlist-scroll" 
-        scroll-y 
+
+      <scroll-view
+        scroll-y
         :scroll-into-view="scrollIntoViewId"
+        scroll-with-animation
+        class="playlist-scroll"
       >
         <view
-          class="playlist-item"
           v-for="(song, index) in playlist"
           :key="song.id"
           :id="`song-${song.id}`"
-          :class="{ active: index === currentIndex }"
-          @click="select(index)"
+          :class="['playlist-item', { active: index === currentIndex }]"
+          @click.stop="select(index)"
         >
           <view class="playlist-item-inner">
             <view class="left-icon">
@@ -29,17 +34,22 @@
                 class="play-svg-icon"
                 mode="aspectFit"
               />
-              <text v-else class="index">{{ String(index + 1).padStart(2, '0') }}</text>
+              <text v-else class="index">
+                {{ String(index + 1).padStart(2, '0') }}
+              </text>
             </view>
             <view class="playlist-item-content">
-              <text class="song-name">{{ song.name }}</text>
-              <text class="singer-name">{{ song.singerName }}</text>
+              <text class="song-name">{{ truncate(song.name) }}</text>
+              <text class="singer-name">{{ truncate(song.singerName) }}</text>
             </view>
           </view>
         </view>
+
+        <!-- 占位防遮挡 -->
+        <view style="height: 60rpx;"></view>
       </scroll-view>
     </view>
-  </view>
+  </u-popup>
 </template>
 
 <script setup lang="ts">
@@ -52,7 +62,6 @@ const emit = defineEmits(['close'])
 const audioStore = useAudioStore()
 const playlist = computed(() => audioStore.playlist)
 const currentIndex = computed(() => audioStore.currentIndex)
-
 const scrollIntoViewId = ref('')
 
 function close() {
@@ -60,53 +69,44 @@ function close() {
 }
 
 function select(index: number) {
-  if (index === currentIndex.value) {
-    emit('close')
-    return
+  if (index !== currentIndex.value) {
+    audioStore.playByIndex(index)
   }
-  audioStore.playByIndex(index)
   emit('close')
 }
 
-watch(() => props.visible, async (newVal) => {
-  if (newVal) {
+function countChinese(str: string): number {
+  return (str.match(/[\u4e00-\u9fa5]/g) || []).length
+}
+
+function truncate(text: string, limit = 18): string {
+  if (!text) return ''
+  const chineseCount = countChinese(text)
+  return chineseCount >= limit ? text.slice(0, limit) + '...' : text
+}
+
+
+watch(() => props.visible, async (val) => {
+  console.log('[Popup] visible:', val)
+  if (val) {
     await nextTick()
     scrollIntoViewId.value = ''
-
     await nextTick()
-
     const current = playlist.value[currentIndex.value]
     if (current) {
       scrollIntoViewId.value = `song-${current.id}`
+      console.log('[Popup] scrollIntoViewId set:', scrollIntoViewId.value)
     }
-  } else {
-    scrollIntoViewId.value = ''
   }
 })
 </script>
 
 <style scoped>
-.playlist-mask {
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-}
-
-.playlist-popup {
-  width: 100%;
-  min-height: 40vh;
-  max-height: 70vh;
-  background: #fff;
+.playlist-container {
+  background-color: #fff;
+  max-height: 80vh;
   border-top-left-radius: 20rpx;
   border-top-right-radius: 20rpx;
-  box-shadow: 0 -6rpx 20rpx rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
 }
@@ -125,25 +125,20 @@ watch(() => props.visible, async (newVal) => {
 }
 
 .playlist-scroll {
-  height: 70vh;
-  padding: 24rpx 36rpx;
+  height: 60vh; /* ✅ 明确高度，不使用 flex: 1 */
   overflow-y: auto;
-  padding-bottom: 80rpx;
+  padding: 24rpx 36rpx 100rpx;
 }
 
 .playlist-item {
   padding: 24rpx 0;
   border-bottom: 1px solid #f5f5f5;
-  background-color: #ffffff;
+  background-color: #fff;
   transition: background-color 0.3s;
 }
 
 .playlist-item.active {
   background-color: #f0f6ff;
-}
-
-.playlist-item:last-child {
-  border-bottom: none;
 }
 
 .playlist-item-inner {
@@ -155,7 +150,6 @@ watch(() => props.visible, async (newVal) => {
 .left-icon {
   width: 80rpx;
   flex-shrink: 0;
-  text-align: right;
   margin-right: 20rpx;
   display: flex;
   justify-content: flex-end;
@@ -175,29 +169,28 @@ watch(() => props.visible, async (newVal) => {
 .playlist-item-content {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
 }
 
-.song-name {
-  font-size: 30rpx;
-  color: #000;
-  font-weight: 500;
+.song-name,
+.singer-name {
+  font-size: 28rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.playlist-item.active .song-name {
-  color: #2a70ff;
-  font-weight: bold;
+  max-width: 100%;
 }
 
 .singer-name {
   font-size: 24rpx;
   color: #888;
   margin-top: 8rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.playlist-item.active .song-name {
+  color: #2a70ff;
+  font-weight: bold;
 }
 </style>
