@@ -23,5 +23,11 @@ export const Config = {
   imagesBaseUrl: `${BASE_CDN_URL}/images/`,
 
   // API接口基地址
-  apiBaseUrl: "https://api.klee.ink"
+  apiBaseUrl: "https://api.klee.ink",
+  
+  // index页面下面的版权，走配置
+  footer: {
+    url: `${BASE_CDN_URL}/config/miscellaneous-table/footer.json`
+  }
+
 };
