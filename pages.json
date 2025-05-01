@@ -46,7 +46,13 @@
 	  "style": {
 		"navigationBarTitleText": "教会节日"
       }
+	},{
+	  "path": "pages/festival/calendar/detail",
+	  "style": {
+		"navigationBarTitleText": "节日详情"
+	  }
 	}
+
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",

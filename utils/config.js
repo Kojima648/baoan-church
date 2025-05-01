@@ -19,7 +19,14 @@ export const Config = {
     },
 	
     // ✅ 教会全年节日总览（分类整理）
-    fullFestivalConfigUrl: `${BASE_CDN_URL}/config/miscellaneous-table/festival_config.json`
+    fullFestivalConfigUrl: `${BASE_CDN_URL}/config/miscellaneous-table/festival_config.json`,
+	
+	// ✅ 新增：节日详情内容列表（走 scode 匹配）
+	fullFestivalDetailUrl: `${BASE_CDN_URL}/config/miscellaneous-table/festival_articles.json`,
+	
+	// ✅ 教会节日图集专属路径
+	festivalImageBaseUrl: `${BASE_CDN_URL}/content/images/festival`
+	
   },
 
   // 静态图片资源根目录

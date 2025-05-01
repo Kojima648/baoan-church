@@ -88,10 +88,17 @@ onMounted(async () => {
 })
 
 function onTap(item: any) {
+  console.log('点击节日 folder_name:', item.folder_name)
+
   uni.navigateTo({
-    url: `/festival/?scode=${item.code}`
+    url:
+      '/pages/festival/calendar/detail?' +
+      'scode=' + encodeURIComponent(item.folder_name) +
+      '&description=' + encodeURIComponent(item.description || '') +
+      '&memorial_day=' + encodeURIComponent(item.memorial_day || '')
   })
 }
+
 
 function toggleLayout() {
   layoutMode.value = layoutMode.value === 'grid' ? 'list' : 'grid'
