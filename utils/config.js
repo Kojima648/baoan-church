@@ -16,7 +16,10 @@ export const Config = {
     // 获取某个月份的瞻礼单，比如 '2028-06'
     getFestivalListUrl: function (yearMonth) {
       return `${BASE_CDN_URL}/config/festival-list/${yearMonth}.json`
-    }
+    },
+	
+    // ✅ 教会全年节日总览（分类整理）
+    fullFestivalConfigUrl: `${BASE_CDN_URL}/config/miscellaneous-table/festival_config.json`
   },
 
   // 静态图片资源根目录

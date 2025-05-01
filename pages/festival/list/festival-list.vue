@@ -1,3 +1,4 @@
+<!-- 瞻礼单页面 -->
 <template>
   <view class="container">
     <!-- 头部组件传入 meta 数据，监听选择变化 -->

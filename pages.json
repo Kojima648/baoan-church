@@ -37,11 +37,16 @@
       }
     },
     {
-      "path": "pages/festival/festival-list",
+      "path": "pages/festival/list/festival-list",
       "style": {
         "navigationBarTitleText": "瞻礼单"
       }
-    }
+    },{
+	  "path": "pages/festival/calendar/index",
+	  "style": {
+		"navigationBarTitleText": "教会节日"
+      }
+	}
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
