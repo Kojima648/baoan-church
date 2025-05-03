@@ -1,7 +1,7 @@
 <!-- 瞻礼单页面 -->
+<!-- 瞻礼单页面 -->
 <template>
   <view class="container">
-    <!-- 头部组件传入 meta 数据，监听选择变化 -->
     <FestivalHeader :meta="metaData" @date-change="onMonthChange" />
 
     <scroll-view
@@ -10,16 +10,15 @@
       :style="{ height: 'calc(100vh - 80rpx - 4vh)' }"
       :scroll-top="scrollTop"
       scroll-with-animation
-      ref="scrollView"
     >
       <view
         v-for="(item, index) in festivalData"
         :key="index"
         :id="`festival-${index}`"
         class="festival-item"
-        :class="{ 'festival-today': isToday(item) }"
+        :class="{ 'festival-today': item._isToday }"
       >
-        <view v-if="isToday(item)" class="today-tag">今日</view>
+        <view v-if="item._isToday" class="today-tag">今日</view>
 
         <view class="left-section">
           <view class="date-box">
@@ -28,7 +27,7 @@
               :style="getLiturgicalColorStyle(item['礼仪'])"
             ></view>
             <view class="date-text">
-              <text class="day" :class="{ today: isToday(item) }">
+              <text class="day" :class="{ today: item._isToday }">
                 {{ item['主历'] }}
               </text>
               <text class="weekday">周{{ item['星期'] }}</text>
@@ -61,75 +60,103 @@ import { Config } from '@/utils/config'
 import FestivalHeader from '@/components/festival/FestivalHeader.vue'
 
 const festivalData = ref([])
+const fullFestivalConfig = ref<any[]>([])
 const scrollTop = ref(0)
 const metaData = ref({})
+const todayIndex = ref(-1)
 
-const today = new Date()
-const todayDay = String(today.getDate()).padStart(2, '0')
-const todayWeek = ['日', '一', '二', '三', '四', '五', '六'][today.getDay()]
+// ✅ 获取北京时间字符串
+function getBeijingTodayStr(): string {
+  const now = new Date()
+  const beijingOffset = -8 * 60
+  const localOffset = now.getTimezoneOffset()
+  const offsetDiff = (beijingOffset - localOffset) * 60 * 1000
+  const beijingTime = new Date(now.getTime() + offsetDiff)
+  const y = beijingTime.getFullYear()
+  const m = String(beijingTime.getMonth() + 1).padStart(2, '0')
+  const d = String(beijingTime.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
 
-function isToday(item: any): boolean {
-  return item['主历'] === todayDay && item['星期'] === todayWeek
+const todayStr = getBeijingTodayStr()
+// console.log('[今日北京时间]', todayStr)
+
+// ✅ 标记今日节日，并返回 index
+function tagTodayFlag(items: any[]) {
+  let index = -1
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]
+    const itemDateStr = `${metaData.value.year}-${String(metaData.value.month).padStart(2, '0')}-${String(item['主历']).padStart(2, '0')}`
+    const isToday = itemDateStr === todayStr
+    item._isToday = isToday
+    if (isToday) index = i
+    // console.log('[isToday 标记]', { index: i, itemDateStr, todayStr, result: isToday })
+  }
+  return index
 }
 
 function getLiturgicalColorStyle(color: string) {
   const colorMap: Record<string, string> = {
-    '白': '#eeeeee',
-    '红': '#ff4d4f',
-    '绿': '#52c41a',
-    '紫': '#722ed1',
-    '黑': '#333333',
-    '玫': '#ff69b4'
+    '白': '#eeeeee', '红': '#ff4d4f', '绿': '#52c41a',
+    '紫': '#722ed1', '黑': '#333333', '玫': '#ff69b4'
   }
-  return {
-    backgroundColor: colorMap[color] || '#cccccc'
-  }
+  return { backgroundColor: colorMap[color] || '#cccccc' }
 }
 
 function parseFestivalLines(html: string): { text: string; link?: string }[] {
   if (!html) return []
-  const matches = [...html.matchAll(/<li>\s*(?:<a href=\"([^\"]+)\">)?([^<]+)(?:<\/a>)?\s*<\/li>/g)]
-  return matches.map((m) => ({
-    link: m[1],
-    text: m[2].trim()
-  }))
+  const matches = [...html.matchAll(/<li>\s*(?:<a href="([^"]+)">)?([^<]+)(?:<\/a>)?\s*<\/li>/g)]
+  return matches.map((m) => ({ link: m[1], text: m[2].trim() }))
 }
 
 function onFestivalItemClick(line: { text: string; link?: string }) {
   if (!line.link) return
-  const match = line.link.match(/\?scode=([a-zA-Z0-9]+)/)
-  if (match) {
-    console.log(`scode=${match[1]}`)
-  } else {
-    console.log('未找到 scode 参数')
+  const match = line.link.match(/\?scode=([a-zA-Z0-9_]+)/)
+  if (!match) return console.warn('未找到 scode 参数')
+
+  const scode = match[1]
+  let target = null
+  for (const section of fullFestivalConfig.value) {
+    const found = section.festivals?.find((item: any) => item.code === scode)
+    if (found) {
+      target = found
+      break
+    }
   }
+
+  const url = target
+    ? `/pages/festival/calendar/detail?scode=${encodeURIComponent(target.folder_name)}&description=${encodeURIComponent(target.description || '')}&memorial_day=${encodeURIComponent(target.memorial_day || '')}`
+    : `/pages/festival/calendar/detail?scode=${encodeURIComponent(scode)}`
+
+  uni.navigateTo({ url })
 }
 
 function loadFestivalList(yearMonth: string) {
   const filePath = Config.festival.getFestivalListUrl(yearMonth)
-  console.log('[请求节日数据]', filePath)
+  // console.log('[加载节日数据]', filePath)
 
   uni.request({
     url: filePath,
     success: (res) => {
       const list = res.data?.data || []
-      festivalData.value = list
       metaData.value = res.data?.meta || {}
-      console.log('[节日数据加载成功]', list.length, '条')
+      // console.log('[节日数据加载成功]', list.length, '条', metaData.value)
 
-      const index = list.findIndex((item: any) => isToday(item))
-      if (index !== -1) {
+      const todayIdx = tagTodayFlag(list)
+      todayIndex.value = todayIdx
+      // console.log('[今日节日 index]', todayIdx)
+      festivalData.value = list
+
+      if (todayIdx !== -1) {
         nextTick(() => {
           const query = uni.createSelectorQuery()
           query.select('.festival-scroll').boundingClientRect()
-          query.select(`#festival-${index}`).boundingClientRect()
+          query.select(`#festival-${todayIdx}`).boundingClientRect()
           query.exec(([scrollViewRect, itemRect]) => {
             if (scrollViewRect && itemRect) {
-              const relativeTop = itemRect.top - scrollViewRect.top
-              console.log('[计算滚动]', { relativeTop })
-              scrollTop.value = relativeTop
+              scrollTop.value = itemRect.top - scrollViewRect.top
             } else {
-              console.warn('[未找到 festival]', index)
+              console.warn('[未找到今日节日元素]', todayIdx)
             }
           })
         })
@@ -146,10 +173,22 @@ function onMonthChange(yearMonth: string) {
 }
 
 onMounted(() => {
-  const year = today.getFullYear()
-  const month = String(today.getMonth() + 1).padStart(2, '0')
-  const yearMonth = `${year}-${month}`
+  const now = new Date()
+  const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  // console.log('[onMounted 当前年月]', yearMonth)
   loadFestivalList(yearMonth)
+
+  uni.request({
+    url: Config.festival.fullFestivalConfigUrl,
+    method: 'GET',
+    success: (res) => {
+      fullFestivalConfig.value = res.data || []
+      // console.log('[节日详情已加载]', fullFestivalConfig.value.length)
+    },
+    fail: () => {
+      console.error('[节日详情加载失败]')
+    }
+  })
 })
 </script>
 

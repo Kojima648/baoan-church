@@ -1,6 +1,12 @@
 <template>
   <scroll-view scroll-y class="detail-page">
-    <view v-if="festival" class="article-wrapper">
+    <!-- 加载中状态 -->
+    <view v-if="loading" class="loading-box">
+      <image src="/static/common/loading.svg" class="loading-icon" mode="aspectFit" />
+    </view>
+
+    <!-- 加载成功 -->
+    <view v-else-if="festival" class="article-wrapper">
       <view class="article-box">
         <view class="article-header">
           <view class="article-title">{{ festival.title }}</view>
@@ -14,6 +20,8 @@
         </view>
       </view>
     </view>
+
+    <!-- 未找到数据 -->
     <view v-else class="empty-box">
       <text>⛔ 未找到节日</text>
     </view>
@@ -26,21 +34,19 @@ import { ref, computed } from 'vue'
 import { Config } from '@/utils/config'
 
 const festival = ref<any>(null)
+const loading = ref(true)
 
 // 格式化 content: 替换 img 路径 + 给 <p> 与 <img> 增加自定义类
 const formattedContent = computed(() => {
   if (!festival.value) return ''
-  const baseUrl = Config.festival.festivalImageBaseUrl.replace(/\/+$/, '') + '/'
+  const baseUrl = Config.festival.festivalImageBaseUrl.replace(/\/+\$/, '') + '/'
   let html = festival.value.content
-  // 替换图片路径
   html = html.replace(/src="\/(.*?)"/g, (_match, p1) => {
     const segments = p1.split('/')
     const encoded = segments.map(seg => encodeURIComponent(seg)).join('/')
     return `src="${baseUrl}${encoded}"`
   })
-  // 给段落加 class
   html = html.replace(/<p(?! class=)/g, '<p class="article-paragraph"')
-  // 给 img 加自定义 class，使样式可选
   html = html.replace(/<img /g, '<img class="article-img" ')
   return html
 })
@@ -50,7 +56,10 @@ onLoad(async (options) => {
   const description = decodeURIComponent(options?.description || '')
   const memorial_day = decodeURIComponent(options?.memorial_day || '')
 
-  if (!scode) return
+  if (!scode) {
+    loading.value = false
+    return
+  }
 
   try {
     const res = await uni.request({ url: Config.festival.fullFestivalDetailUrl, method: 'GET' })
@@ -60,11 +69,12 @@ onLoad(async (options) => {
     if (matched) {
       matched.description = description.trim() || null
       matched.memorial_day = memorial_day.trim() || null
-
       festival.value = matched
     }
   } catch (err) {
     console.error('加载节日详情失败:', err)
+  } finally {
+    loading.value = false
   }
 })
 </script>
@@ -74,6 +84,24 @@ onLoad(async (options) => {
   padding: 0;
   background-color: transparent;
   font-family: Arial, sans-serif;
+}
+
+.loading-box {
+  padding: 120rpx 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-icon {
+  width: 64rpx;
+  height: 64rpx;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .article-wrapper {
@@ -123,14 +151,12 @@ onLoad(async (options) => {
   text-align: justify;
 }
 
-/* 居中图片，使用自定义 class */
 ::v-deep .article-img {
   display: block !important;
   margin: 20rpx auto !important;
   max-width: 100% !important;
 }
 
-/* 段落样式，使用自定义类 */
 ::v-deep .article-paragraph {
   margin-bottom: 20rpx;
   text-align: justify;
