@@ -7,8 +7,8 @@
       mode="aspectFill"
     />
     <view class="banner-text">
-      <view class="verse">我见了主。</view>
-      <view class="ref">若 20:18</view>
+      <view class="verse">因为鱼太多，竟不能拉上网来。</view>
+      <view class="ref">若 21:6</view>
     </view>
   </view>
 </template>

@@ -3,15 +3,17 @@
 const BASE_CDN_URL = "https://static.klee.ink";
 
 export const Config = {
+  // ✅ 音乐模块配置
   music: {
     sheetListUrl: `${BASE_CDN_URL}/config/music/type-0/sheet_list.json`,
-    getSheetDetailUrl: function (sheetId) {
+    getSheetDetailUrl(sheetId) {
       return `${BASE_CDN_URL}/config/music/type-0/sheet_detail/sheet_${sheetId}.json`;
     }
   },
 
+  // ✅ 节日相关配置
   festival: {
-    getFestivalListUrl: function (yearMonth) {
+    getFestivalListUrl(yearMonth) {
       return `${BASE_CDN_URL}/config/festival-list/${yearMonth}.json`;
     },
     fullFestivalConfigUrl: `${BASE_CDN_URL}/config/miscellaneous-table/festival_config.json`,
@@ -19,34 +21,43 @@ export const Config = {
     festivalImageBaseUrl: `${BASE_CDN_URL}/content/images/festival`
   },
 
+  // ✅ 普通电子书（非天主教专属）配置
   books: {
-    // ✅ 常用书籍 JSON 列表
-    listUrl: `${BASE_CDN_URL}/config/index/e-book/common_books.json`,
-    coverBaseUrl: `${BASE_CDN_URL}/`
+    listUrl: `${BASE_CDN_URL}/config/index/e-book/common_books.json`
   },
 
+  // ✅ 天主教专属书籍配置
   catholicBooks: {
-    // ✅ 首页书籍列表
-    listUrl: `${BASE_CDN_URL}/catholic-books/list/books_list.json`,
-    // ✅ 获取单本书章节 index
-    getBookIndexUrl: function (bookId) {
-      return `${BASE_CDN_URL}/catholic-books/index/${bookId}_index.json`;
-    },
-    // ✅ 获取某一章节 Markdown 正文路径（注意：最终路径从 index.json 中取更合理）
-    getMarkdownUrl: function (bookId, fileName) {
-      return `${BASE_CDN_URL}/catholic-books/markdown/${bookId}/${fileName}`;
-    },
-    // ✅ 获取封面图（可选）
-    getCoverUrl: function (bookId) {
-      return `${BASE_CDN_URL}/catholic-books/cover/${bookId}.jpg`;
+    listUrl: `${BASE_CDN_URL}/config/index/catholic-books/list/books_list.json`,
+  
+    // ✅ 拼接 markdown 正文文件路径（新版）
+    getMarkdownUrl(path) {
+      return `${BASE_CDN_URL}/config/index/catholic-books${path}`;
     }
   },
 
+  // ✅ 图片资源基准路径
   imagesBaseUrl: `${BASE_CDN_URL}/images/`,
 
+  // ✅ API 请求基础地址
   apiBaseUrl: "https://api.klee.ink",
 
+  // ✅ 页脚链接配置
   footer: {
     url: `${BASE_CDN_URL}/config/miscellaneous-table/footer.json`
+  },
+
+  // ✅ 通用静态资源路径拼接函数
+  resolveStaticUrl(path) {
+    return path.startsWith("http")
+      ? path
+      : `${BASE_CDN_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
+  },
+
+  // ✅ 通用 API 路径拼接函数（建议新增）
+  resolveApiUrl(path) {
+    return path.startsWith("http")
+      ? path
+      : `${this.apiBaseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
   }
 };

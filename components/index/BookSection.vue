@@ -10,9 +10,10 @@
       >
         <image
           class="book-image"
-          :src="`${coverBaseUrl}${book.cover}`"
+          :src="Config.resolveStaticUrl(book.cover)"
           mode="aspectFill"
         />
+
         <view class="book-title">{{ book.title }}</view>
       </view>
     </view>
@@ -23,19 +24,28 @@
 import { ref, onMounted } from 'vue'
 import { Config } from '@/utils/config'
 
-const books = ref<any[]>([])
-const coverBaseUrl = Config.books.coverBaseUrl // === "https://static.klee.ink/"
+const books = ref<Array<{
+  book_id: string
+  title: string
+  cover: string
+}>>([])
+
+// ✅ 统一封面路径解析
+function getCoverFullUrl(coverPath: string) {
+  return Config.resolveStaticUrl(coverPath)
+}
+
 
 function onTap(book: any) {
   console.log('[点击] 书籍项：', book.title)
   uni.navigateTo({
-    url: book.detail_url
+    url: `/pages/book/book-index?id=${book.book_id}`
   })
 }
 
 onMounted(() => {
   uni.request({
-    url: Config.books.listUrl,
+    url: Config.catholicBooks.listUrl,
     success: (res) => {
       books.value = res.data
     },

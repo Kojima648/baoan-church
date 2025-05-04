@@ -41,19 +41,38 @@
       "style": {
         "navigationBarTitleText": "瞻礼单"
       }
-    },{
-	  "path": "pages/festival/calendar/index",
-	  "style": {
-		"navigationBarTitleText": "教会节日"
+    },
+    {
+      "path": "pages/festival/calendar/index",
+      "style": {
+        "navigationBarTitleText": "教会节日"
       }
-	},{
-	  "path": "pages/festival/calendar/detail",
-	  "style": {
-		"navigationBarTitleText": "节日详情"
-	  }
-	}
-
+    },
+    {
+      "path": "pages/festival/calendar/detail",
+      "style": {
+        "navigationBarTitleText": "节日详情"
+      }
+    },
+    {
+      "path": "pages/book/book-index",
+      "style": {
+        "navigationBarTitleText": "章节列表"
+      }
+    },
+    {
+      "path": "pages/book/book-detail",
+      "style": {
+        "navigationBarTitleText": "章节阅读"
+      }
+    }
   ],
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^zero-markdown-view": "uni_modules/zero-markdown-view/components/zero-markdown-view/zero-markdown-view.vue"
+    }
+  },
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "宝安天主堂",
