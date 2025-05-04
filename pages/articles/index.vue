@@ -49,8 +49,8 @@ export default {
         { name: '每日读经' },
         { name: '公私诵' },
         { name: '宗教法规' },
-        { name: '教区动态' },
-        { name: '教区简介' }
+        { name: '堂区动态' },
+        { name: '堂区简介' }
       ],
       articleList: [
         {
