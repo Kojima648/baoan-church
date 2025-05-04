@@ -1,34 +1,129 @@
 <template>
   <view class="book-detail-page">
-    <zero-markdown-view :markdown="markdownContent" />
+    <!-- 章节标题 -->
+    <view class="section-title" v-if="sectionTitle">
+      {{ sectionTitle }}
+    </view>
+
+    <!-- Markdown 内容 -->
+    <view class="markdown-wrapper" v-if="markdownContent">
+      <zero-markdown-view :markdown="markdownContent" />
+    </view>
+
+    <!-- 加载动画 -->
+    <view v-else class="loading-wrapper">
+      <image src="/static/common/loading.svg" class="loading-icon rotating" mode="aspectFit" />
+      <text class="loading-text">章节内容加载中...</text>
+    </view>
+
+    <!-- 返回顶部图标 -->
+    <image
+      v-if="showBackTop"
+      src="/static/common/goTop.svg"
+      class="back-to-top-icon"
+      mode="aspectFit"
+      @click="scrollToTop"
+    />
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { onLoad, onPageScroll } from '@dcloudio/uni-app'
+import { Config } from '@/utils/config'
 
-const markdownContent = ref(`
-# 📖 章节标题测试
+const bookId = ref('')
+const markdownPath = ref('')
+const markdownContent = ref('')
+const sectionTitle = ref('')
+const showBackTop = ref(false)
 
-这是一个用于测试 \`zero-markdown-view\` 渲染效果的页面。
+onLoad((options) => {
+  bookId.value = options.bookId
+  markdownPath.value = decodeURIComponent(options.path)
+  sectionTitle.value = options.title || ''
 
-## ✅ 列表测试
+  const fullUrl = Config.resolveStaticUrl(markdownPath.value)
+  console.log('[页面加载] bookId:', bookId.value)
+  console.log('[页面加载] markdown path:', markdownPath.value)
+  console.log('[加载章节内容] 完整URL:', fullUrl)
 
-- 项目一
-- 项目二
+  uni.request({
+    url: fullUrl,
+    success: (res) => {
+      console.log('[成功] 加载 Markdown 内容')
+      markdownContent.value = res.data.trim()
+    },
+    fail: (err) => {
+      console.error('[失败] 加载 Markdown 内容失败', err)
+    }
+  })
+})
 
-## 🧪 代码测试
+onPageScroll((e) => {
+  showBackTop.value = e.scrollTop > 400
+})
 
-\`\`\`js
-console.log("Hello from book-detail.vue");
-\`\`\`
-
-> 以上内容来自静态测试。
-`);
+function scrollToTop() {
+  uni.pageScrollTo({
+    scrollTop: 0,
+    duration: 300
+  })
+}
 </script>
 
 <style scoped>
 .book-detail-page {
   padding: 24rpx;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.section-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  margin-bottom: 24rpx;
+  text-align: center;
+}
+
+.loading-wrapper {
+  margin-top: 200rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-icon {
+  width: 80rpx;
+  height: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.rotating {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.back-to-top-icon {
+  position: fixed;
+  bottom: 120rpx;
+  right: 40rpx;
+  width: 80rpx;
+  height: 80rpx;
+  z-index: 999;
 }
 </style>
