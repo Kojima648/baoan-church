@@ -1,4 +1,3 @@
---- FestivalSection.vue
 <template>
   <view class="section-box festival-section pressable" @click="goFestivalList">
     <view
@@ -23,18 +22,15 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Config } from '@/utils/config.js'
 
-// 当前节日信息
 const todayFestival = ref({
   titleList: [],
   dateStr: '',
   liturgicalColor: ''
 })
 const currentFestivalTitle = ref('今日暂无瞻礼')
-
 let scrollTimer: any = null
 let scrollIndex = 0
 
-// 生命周期：加载数据
 onMounted(() => {
   loadTodayFestival()
 })
@@ -42,7 +38,6 @@ onUnmounted(() => {
   if (scrollTimer) clearInterval(scrollTimer)
 })
 
-// 提取节日标题
 function extractFestivalTitles(html: string): string[] {
   if (!html) return []
   try {
@@ -58,7 +53,6 @@ function extractFestivalTitles(html: string): string[] {
   }
 }
 
-// 加载今日节日数据
 function loadTodayFestival() {
   const today = new Date()
   const year = today.getFullYear()
@@ -96,7 +90,6 @@ function loadTodayFestival() {
   })
 }
 
-// 滚动节日标题
 function startScrollFestivalTitles() {
   if (scrollTimer) clearInterval(scrollTimer)
   scrollIndex = 0
@@ -109,7 +102,6 @@ function startScrollFestivalTitles() {
   }, 3000)
 }
 
-// 获取礼仪颜色样式
 function getLiturgicalColorStyle(color: string) {
   switch (color) {
     case '白': return { background: '#ffffff', border: '1rpx solid #ccc' }
@@ -121,14 +113,11 @@ function getLiturgicalColorStyle(color: string) {
   }
 }
 
-// 点击跳转
 function goFestivalList() {
-  console.log('[点击] 瞻礼单区块')
   uni.navigateTo({
     url: '/pages/festival/list/festival-list?goto=today'
   })
 }
-
 </script>
 
 <style scoped>
@@ -139,7 +128,6 @@ function goFestivalList() {
   display: flex;
   align-items: stretch;
 }
-
 .liturgical-color-bar {
   width: 8rpx;
   border-radius: 6rpx;
@@ -155,27 +143,34 @@ function goFestivalList() {
   border-radius: 20rpx;
   box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.04);
   padding: 24rpx;
+  overflow: hidden;        /* 防止超出 */
+  white-space: nowrap;     /* 不自动换行 */
 }
+
 .festival-item-left {
   flex: 1;
   min-width: 0;
+  max-width: 80%;           /* ✅ 限制宽度防止挤压右侧 */
 }
+
 .festival-title {
-  font-size: 28rpx;
+  font-size: 30rpx;
   font-weight: bold;
   color: #333;
 }
+
 .festival-label {
   margin-top: 8rpx;
-  font-size: 24rpx;
+  font-size: 26rpx;
   color: #666;
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis; /* ✅ 超出省略号 */
 }
+
 .festival-item-right {
   flex-shrink: 0;
-  font-size: 26rpx;
+  font-size: 28rpx;
   color: #333;
   margin-left: 12rpx;
 }
@@ -189,3 +184,4 @@ function goFestivalList() {
   transform: scale(0.995);
 }
 </style>
+

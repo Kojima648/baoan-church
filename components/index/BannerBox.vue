@@ -42,12 +42,12 @@ function onTap() {
   padding: 16rpx 24rpx;
 }
 .verse {
-  font-size: 30rpx;
+  font-size: 32rpx;
   font-weight: 600;
   margin-bottom: 4rpx;
 }
 .ref {
-  font-size: 24rpx;
+  font-size: 28rpx;
   opacity: 0.9;
 }
 .pressable {

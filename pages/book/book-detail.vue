@@ -44,14 +44,11 @@ onLoad((options) => {
   sectionTitle.value = options.title || ''
 
   const fullUrl = Config.resolveStaticUrl(markdownPath.value)
-  console.log('[页面加载] bookId:', bookId.value)
-  console.log('[页面加载] markdown path:', markdownPath.value)
-  console.log('[加载章节内容] 完整URL:', fullUrl)
 
+  // 立即加载内容
   uni.request({
     url: fullUrl,
     success: (res) => {
-      console.log('[成功] 加载 Markdown 内容')
       markdownContent.value = res.data.trim()
     },
     fail: (err) => {
@@ -84,6 +81,10 @@ function scrollToTop() {
   font-weight: bold;
   margin-bottom: 24rpx;
   text-align: center;
+}
+
+.markdown-wrapper {
+  padding-bottom: 60rpx;
 }
 
 .loading-wrapper {

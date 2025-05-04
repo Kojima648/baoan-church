@@ -67,6 +67,32 @@
       }
     }
   ],
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#2a70ff",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "static/tab/教堂.png",
+        "selectedIconPath": "static/tab/教堂1.png",
+        "text": "首 页"
+      },
+      {
+        "pagePath": "pages/articles/index",
+        "iconPath": "static/tab/文章.png",
+        "selectedIconPath": "static/tab/文章1.png",
+        "text": "文 章"
+      },
+      {
+        "pagePath": "pages/audio/index",
+        "iconPath": "static/tab/音频.png",
+        "selectedIconPath": "static/tab/音频1.png",
+        "text": "音 频"
+      }
+    ]
+  },
   "easycom": {
     "autoscan": true,
     "custom": {
@@ -78,31 +104,5 @@
     "navigationBarTitleText": "宝安天主堂",
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
-  },
-  "tabBar": {
-    "color": "#999999",
-    "selectedColor": "#2a70ff",
-    "backgroundColor": "#ffffff",
-    "borderStyle": "black",
-    "list": [
-      {
-        "pagePath": "pages/index/index",
-        "iconPath": "static/tab/教堂.png",
-        "selectedIconPath": "static/tab/教堂1.png",
-        "text": "首页"
-      },
-      {
-        "pagePath": "pages/articles/index",
-        "iconPath": "static/tab/文章.png",
-        "selectedIconPath": "static/tab/文章1.png",
-        "text": "文章"
-      },
-      {
-        "pagePath": "pages/audio/index",
-        "iconPath": "static/tab/音频.png",
-        "selectedIconPath": "static/tab/音频1.png",
-        "text": "音频"
-      }
-    ]
   }
 }

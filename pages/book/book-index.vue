@@ -1,6 +1,7 @@
 <template>
   <view class="book-index-page">
     <scroll-view scroll-y class="scroll-area" :scroll-top="scrollTop">
+      <!-- 封面与简介 -->
       <view class="book-header">
         <image
           v-if="bookData.cover"
@@ -14,6 +15,12 @@
         </view>
       </view>
 
+      <!-- 搜索栏 -->
+      <view class="search-bar">
+        <input v-model="keyword" placeholder="搜索章节标题..." class="search-input" />
+      </view>
+
+      <!-- 分类章节列表 -->
       <view
         v-for="(group, category) in groupedSections"
         :key="category"
@@ -23,11 +30,11 @@
         <view class="section-list">
           <view
             class="section-item pressable"
-            v-for="(section, index) in group"
+            v-for="(section, index) in group.filter(s => s.title.includes(keyword))"
             :key="index"
             @click="onSelectSection(section)"
           >
-            <text class="section-title">{{ section.title }}</text>
+            <view class="section-title" v-html="highlightMatch(section.title)"></view>
           </view>
         </view>
       </view>
@@ -56,22 +63,32 @@ const bookData = ref<any>({
   cover: '',
   sections: []
 })
-
 const groupedSections = ref<Record<string, any[]>>({})
-const showBackTop = ref(false)
+const keyword = ref('')
 const scrollTop = ref(0)
+const showBackTop = ref(false)
 
 function groupByCategory(sections: any[]) {
   const result: Record<string, any[]> = {}
   sections.forEach(section => {
-    if (!result[section.category]) result[section.category] = []
-    result[section.category].push(section)
+    const cat = section.category || '未分类'
+    if (!result[cat]) result[cat] = []
+    result[cat].push(section)
   })
   return result
 }
 
+// 高亮关键词
+function highlightMatch(text: string): string {
+  if (!keyword.value) return text
+  const escaped = keyword.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return text.replace(
+    new RegExp(escaped, 'gi'),
+    match => `<span style="color: red;">${match}</span>`
+  )
+}
+
 function onSelectSection(section: any) {
-  console.log('[跳转章节]', section.path)
   uni.navigateTo({
     url: `/pages/book/book-detail?bookId=${bookId.value}&path=${encodeURIComponent(section.path)}`
   })
@@ -87,16 +104,10 @@ onPageScroll((e) => {
 
 onLoad((options) => {
   bookId.value = options.id
-  console.log('[页面加载] bookId:', bookId.value)
-
-  const indexPath = `/config/index/catholic-books/index/${bookId.value}_index.json`
-  const fullUrl = Config.resolveStaticUrl(indexPath)
-  console.log('[加载书籍目录]', indexPath, '➡️', fullUrl)
-
+  const url = Config.resolveStaticUrl(`/config/index/catholic-books/index/${bookId.value}_index.json`)
   uni.request({
-    url: fullUrl,
+    url,
     success: (res) => {
-      console.log('[成功] 加载书籍数据:', res.data)
       bookData.value = res.data
       groupedSections.value = groupByCategory(res.data.sections || [])
     },
@@ -109,9 +120,9 @@ onLoad((options) => {
 
 <style scoped>
 .book-index-page {
-  padding: 0 24rpx;
+  padding: 0;
   height: 100vh;
-  box-sizing: border-box;
+  background-color: #f6f7f9;
 }
 
 .scroll-area {
@@ -120,9 +131,10 @@ onLoad((options) => {
 
 .book-header {
   display: flex;
-  margin-bottom: 32rpx;
+  padding: 32rpx 24rpx;
+  background: #fff;
   gap: 24rpx;
-  padding: 24rpx 0;
+  border-bottom: 1rpx solid #e4e4e4;
 }
 
 .book-cover {
@@ -150,49 +162,70 @@ onLoad((options) => {
   color: #666;
 }
 
+.search-bar {
+  padding: 20rpx 24rpx;
+  background-color: #ffffff;
+}
+
+.search-input {
+  width: 100%;
+  height: 64rpx;
+  padding: 0 24rpx;
+  border-radius: 32rpx;
+  background-color: #f3f3f3;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+/* 分类分组 */
 .category-group {
-  margin-bottom: 32rpx;
+  margin-bottom: 48rpx;
 }
 
 .category-title {
-  font-size: 34rpx; /* ✅ 提升字体大小 */
+  font-size: 36rpx;
   font-weight: bold;
-  margin-bottom: 16rpx;
+  padding: 18rpx 32rpx;
   color: #2a70ff;
-  line-height: 1.6;
+  background-color: #eef2f7;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .sticky-title {
   position: sticky;
   top: 0;
-  z-index: 10;
-  background-color: #f8f8f8;
-  padding: 12rpx 0;
+  z-index: 5;
 }
 
+/* 列表容器 */
 .section-list {
   display: flex;
   flex-direction: column;
   gap: 16rpx;
+  padding: 0 24rpx;
 }
 
 .section-item {
-  background: #ffffff;
-  padding: 28rpx;
+  background: #fff;
+  padding: 28rpx 32rpx;
   border-radius: 16rpx;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06);
-  display: flex;
-  align-items: center;
-  transition: transform 0.1s ease;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
+  transition: background 0.2s ease;
+}
+
+.section-item:active {
+  background: #f3f3f3;
 }
 
 .section-title {
-  font-size: 32rpx;
-  color: #333;
+  font-size: 34rpx;
+  color: #222;
+  word-break: break-word;
 }
 
 .pressable:active {
-  transform: scale(0.98);
+  transform: scale(0.995);
 }
 
 .back-to-top-icon {

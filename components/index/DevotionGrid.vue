@@ -47,7 +47,7 @@ function onTap(item: any) {
   margin: 0 24rpx 24rpx;
 }
 .section-title {
-  font-size: 28rpx;
+  font-size: 30rpx;
   font-weight: bold;
   margin: 0 0 16rpx;
   color: #333;
@@ -72,15 +72,15 @@ function onTap(item: any) {
   position: absolute;
   top: 20rpx;
   right: 20rpx;
-  font-size: 32rpx;
+  font-size: 48rpx;
 }
 .title {
-  font-size: 26rpx;
+  font-size: 28rpx;
   font-weight: 500;
   color: #333;
 }
 .sub {
-  font-size: 22rpx;
+  font-size: 26rpx;
   color: #999;
 }
 .pressable {

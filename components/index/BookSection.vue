@@ -61,7 +61,7 @@ onMounted(() => {
   margin: 0 24rpx 24rpx;
 }
 .section-title {
-  font-size: 28rpx;
+  font-size: 30rpx;
   font-weight: bold;
   margin-bottom: 16rpx;
   color: #333;
@@ -87,7 +87,7 @@ onMounted(() => {
   box-shadow: 0 12rpx 24rpx rgba(0, 0, 0, 0.2);
 }
 .book-title {
-  font-size: 22rpx;
+  font-size: 28rpx;
   margin-top: 8rpx;
   text-align: center;
   color: #222;
