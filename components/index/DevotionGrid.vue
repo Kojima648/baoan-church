@@ -24,7 +24,7 @@ const props = defineProps({
     type: Array,
 	default: () => [
 	  { title: '公教日课', sub: '复活节第三日', icon: '🕯️', url: '/pages/devotion/daily-office/index' },
-	  { title: '思高圣经', sub: '创 1', icon: '📖', url: '/pages/bible/sigao/index' },
+	  { title: '思高圣经', sub: '创 1', icon: '📖', url: '/pages/bible/index' },  // 
 	  { title: '每日读经', sub: '中文读经', icon: '🙏', url: '/pages/devotion/reading/index' },
 	  { title: '教会节日', sub: '圣人圣女', icon: '🍷', url: '/pages/festival/calendar/index' }
 	]

@@ -1,108 +1,110 @@
 {
-  "pages": [
-    {
-      "path": "pages/index/index",
-      "style": {
-        "navigationStyle": "default"
-      }
-    },
-    {
-      "path": "pages/articles/index",
-      "style": {
-        "navigationBarTitleText": "文章"
-      }
-    },
-    {
-      "path": "pages/articles/detail",
-      "style": {
-        "navigationBarTitleText": "文章详情"
-      }
-    },
-    {
-      "path": "pages/audio/index",
-      "style": {
-        "navigationBarTitleText": "音频"
-      }
-    },
-    {
-      "path": "pages/audio/album",
-      "style": {
-        "navigationBarTitleText": "歌单列表"
-      }
-    },
-    {
-      "path": "pages/audio/play",
-      "style": {
-        "navigationBarTitleText": "正在播放"
-      }
-    },
-    {
-      "path": "pages/festival/list/festival-list",
-      "style": {
-        "navigationBarTitleText": "瞻礼单"
-      }
-    },
-    {
-      "path": "pages/festival/calendar/index",
-      "style": {
-        "navigationBarTitleText": "教会节日"
-      }
-    },
-    {
-      "path": "pages/festival/calendar/detail",
-      "style": {
-        "navigationBarTitleText": "节日详情"
-      }
-    },
-    {
-      "path": "pages/book/book-index",
-      "style": {
-        "navigationBarTitleText": "章节列表"
-      }
-    },
-    {
-      "path": "pages/book/book-detail",
-      "style": {
-        "navigationBarTitleText": "章节阅读"
-      }
-    }
-  ],
-  "tabBar": {
-    "color": "#999999",
-    "selectedColor": "#2a70ff",
-    "backgroundColor": "#ffffff",
-    "borderStyle": "black",
-    "list": [
-      {
-        "pagePath": "pages/index/index",
-        "iconPath": "static/tab/教堂.png",
-        "selectedIconPath": "static/tab/教堂1.png",
-        "text": "首 页"
-      },
-      {
-        "pagePath": "pages/articles/index",
-        "iconPath": "static/tab/文章.png",
-        "selectedIconPath": "static/tab/文章1.png",
-        "text": "文 章"
-      },
-      {
-        "pagePath": "pages/audio/index",
-        "iconPath": "static/tab/音频.png",
-        "selectedIconPath": "static/tab/音频1.png",
-        "text": "音 频"
-      }
-    ]
-  },
-  "easycom": {
-    "autoscan": true,
-    "custom": {
-      "^zero-markdown-view": "uni_modules/zero-markdown-view/components/zero-markdown-view/zero-markdown-view.vue"
-    }
-  },
-  "globalStyle": {
-    "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "宝安天主堂",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
-  }
+	"pages": [{
+			"path": "pages/index/index",
+			"style": {
+				"navigationStyle": "default"
+			}
+		},
+		{
+			"path": "pages/articles/index",
+			"style": {
+				"navigationBarTitleText": "文章"
+			}
+		},
+		{
+			"path": "pages/articles/detail",
+			"style": {
+				"navigationBarTitleText": "文章详情"
+			}
+		},
+		{
+			"path": "pages/audio/index",
+			"style": {
+				"navigationBarTitleText": "音频"
+			}
+		},
+		{
+			"path": "pages/audio/album",
+			"style": {
+				"navigationBarTitleText": "歌单列表"
+			}
+		},
+		{
+			"path": "pages/audio/play",
+			"style": {
+				"navigationBarTitleText": "正在播放"
+			}
+		},
+		{
+			"path": "pages/festival/list/festival-list",
+			"style": {
+				"navigationBarTitleText": "瞻礼单"
+			}
+		},
+		{
+			"path": "pages/festival/calendar/index",
+			"style": {
+				"navigationBarTitleText": "教会节日"
+			}
+		},
+		{
+			"path": "pages/festival/calendar/detail",
+			"style": {
+				"navigationBarTitleText": "节日详情"
+			}
+		},
+		{
+			"path": "pages/book/book-index",
+			"style": {
+				"navigationBarTitleText": "章节列表"
+			}
+		},
+		{
+			"path": "pages/book/book-detail",
+			"style": {
+				"navigationBarTitleText": "章节阅读"
+			}
+		},
+		{
+			"path": "pages/bible/index",
+			"style": {}
+		}
+	],
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#2a70ff",
+		"backgroundColor": "#ffffff",
+		"borderStyle": "black",
+		"list": [{
+				"pagePath": "pages/index/index",
+				"iconPath": "static/tab/教堂.png",
+				"selectedIconPath": "static/tab/教堂1.png",
+				"text": "首 页"
+			},
+			{
+				"pagePath": "pages/articles/index",
+				"iconPath": "static/tab/文章.png",
+				"selectedIconPath": "static/tab/文章1.png",
+				"text": "文 章"
+			},
+			{
+				"pagePath": "pages/audio/index",
+				"iconPath": "static/tab/音频.png",
+				"selectedIconPath": "static/tab/音频1.png",
+				"text": "音 频"
+			}
+		]
+	},
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^zero-markdown-view": "uni_modules/zero-markdown-view/components/zero-markdown-view/zero-markdown-view.vue"
+		}
+	},
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "宝安天主堂",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	}
 }
